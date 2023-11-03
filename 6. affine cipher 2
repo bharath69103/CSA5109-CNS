@@ -1,0 +1,73 @@
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <ctype.h>
+int gcd(int a, int b) {
+    if (b == 0) {
+        return a;
+    }
+    return gcd(b, a % b);
+}
+int modInverse(int a, int m) {
+    a = a % m;
+    for (int x = 1; x < m; x++) {
+        if ((a * x) % m == 1) {
+            return x;
+        }
+    }
+    return -1;}
+void breakAffineCipher(const char *ciphertext) {
+    int freq[26] = {0};
+    int len = strlen(ciphertext);
+    for (int i = 0; i < len; i++) {
+        char c = tolower(ciphertext[i]);
+        if (isalpha(c)) {
+            freq[c - 'a']++;
+        }
+    }
+    int maxFreq = 0, maxIndex = -1;
+    for (int i = 0; i < 26; i++) {
+        if (freq[i] > maxFreq) {
+            maxFreq = freq[i];
+            maxIndex = i;
+        }
+    }
+    int secondMaxFreq = 0, secondMaxIndex = -1;
+    for (int i = 0; i < 26; i++) {
+        if (i != maxIndex && freq[i] > secondMaxFreq) {
+            secondMaxFreq = freq[i];
+            secondMaxIndex = i;
+        }
+    }
+    if (maxIndex != -1 && secondMaxIndex != -1) {
+        int a = (maxIndex - secondMaxIndex + 26) % 26;
+        int b = (ciphertext[0] - 'A' - (a * (maxIndex % 26))) % 26;
+        int aInverse = modInverse(a, 26);
+        if (aInverse != -1) {
+            printf("Potential Key (a, b): (%d, %d)\n", a, b);
+            printf("Decrypted Text: ");
+            for (int i = 0; i < len; i++) {
+                char c = ciphertext[i];
+                if (isalpha(c)) {
+                    char decrypted = (aInverse * (c - 'A' - b)) % 26 + 'A';
+                    if (decrypted < 'A') {
+                        decrypted += 26;
+                    }
+                    printf("%c", decrypted);
+                } else {
+                    printf("%c", c);
+                }
+            }
+            printf("\n");
+        } else {
+            printf("Cannot find a valid key.\n");
+        }
+    } else {
+        printf("Cannot break the code with the provided information.\n");
+    }
+}
+int main() {
+    char ciphertext[] = "BU...";
+    breakAffineCipher(ciphertext);
+    return 0;
+}
