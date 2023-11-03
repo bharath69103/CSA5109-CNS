@@ -1,0 +1,54 @@
+#include <stdio.h>
+#include <string.h>
+#define ROWS 5
+#define COLS 5
+void generatePlayfairMatrix(char keyword[], char matrix[ROWS][COLS]) {
+    char alphabet[] = "ABCDEFGHIKLMNOPQRSTUVWXYZ";
+    int keywordLength = strlen(keyword);
+    for (int i = 0; i < ROWS; i++) {
+        for (int j = 0; j < COLS; j++) {
+            matrix[i][j] = ' ';
+        }
+    }
+    int k = 0;
+    for (int i = 0; i < keywordLength; i++) {
+        char ch = keyword[i];
+        if (ch == 'J') ch = 'I'; // Replace J with I
+        if (matrix[k / COLS][k % COLS] == ' ') {
+            matrix[k / COLS][k % COLS] = ch;
+            k++;
+        }
+    }
+    for (int i = 0; i < ROWS; i++) {
+        for (int j = 0; j < COLS; j++) {
+            if (matrix[i][j] == ' ') {
+                for (int a = 0; a < 26; a++) {
+                    char ch = alphabet[a];
+                    if (ch != 'J' && strchr(keyword, ch) == NULL) {
+                        matrix[i][j] = ch;
+                        break;
+                    }
+                }
+            }
+        }
+    }
+}
+void encryptPlayfair(char plainText[], char matrix[ROWS][COLS], char cipherText[]) {
+}
+int main() {
+    char keyword[] = "MUSTSEEYOUOVERCADOGANWEST";
+    char plainText[] = "COMINGATONCE";
+    char playfairMatrix[ROWS][COLS];
+    char encryptedMessage[1000];
+    generatePlayfairMatrix(keyword, playfairMatrix);
+    encryptPlayfair(plainText, playfairMatrix, encryptedMessage);
+    printf("Playfair Matrix:\n");
+    for (int i = 0; i < ROWS; i++) {
+        for (int j = 0; j < COLS; j++) {
+            printf("%c ", playfairMatrix[i][j]);
+        }
+        printf("\n");
+    }
+    printf("Encrypted Message: %s\n", encryptedMessage);
+    return 0;
+}
