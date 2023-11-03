@@ -1,0 +1,59 @@
+#include <stdio.h>
+#include <string.h>
+void encryptHillCipher(char message[], int key[2][2], char ciphertext[], int mod) {
+    int len = strlen(message);
+    for (int i = 0; i < len; i += 2) {
+        int char1 = message[i] - 'a';
+        int char2 = (i + 1 < len) ? message[i + 1] - 'a' : 0; 
+        int encryptedChar1 = (char1 * key[0][0] + char2 * key[1][0]) % mod;
+        int encryptedChar2 = (char1 * key[0][1] + char2 * key[1][1]) % mod;
+        ciphertext[i] = encryptedChar1 + 'a';
+        if (i + 1 < len) {
+            ciphertext[i + 1] = encryptedChar2 + 'a';
+        }
+    }
+    ciphertext[len] = '\0';
+}
+void decryptHillCipher(char ciphertext[], int key[2][2], char decryptedMessage[], int mod) {
+    int len = strlen(ciphertext);
+    int determinant = (key[0][0] * key[1][1] - key[0][1] * key[1][0] + mod) % mod;
+    int modInverse = -1;
+    for (int i = 1; i < mod; i++) {
+        if ((determinant * i) % mod == 1) {
+            modInverse = i;
+            break;
+        }
+    }
+    if (modInverse == -1) {
+        printf("Modular inverse does not exist.\n");
+        return;
+    }
+    int keyInverse[2][2];
+    keyInverse[0][0] = (key[1][1] * modInverse) % mod;
+    keyInverse[0][1] = (-key[0][1] * modInverse) % mod;
+    keyInverse[1][0] = (-key[1][0] * modInverse) % mod;
+    keyInverse[1][1] = (key[0][0] * modInverse) % mod;
+    for (int i = 0; i < len; i += 2) {
+        int char1 = ciphertext[i] - 'a';
+        int char2 = (i + 1 < len) ? ciphertext[i + 1] - 'a' : 0;
+        int decryptedChar1 = (char1 * keyInverse[0][0] + char2 * keyInverse[1][0]) % mod;
+        int decryptedChar2 = (char1 * keyInverse[0][1] + char2 * keyInverse[1][1]) % mod;
+        decryptedMessage[i] = decryptedChar1 + 'a';
+        if (i + 1 < len) {
+            decryptedMessage[i + 1] = decryptedChar2 + 'a';
+        }
+    }
+    decryptedMessage[len] = '\0';
+}
+int main() {
+    char message[] = "meetmeattheusualplaceattenratherthaneightoclock";
+    int key[2][2] = {{9, 4}, {5, 7}};
+    char ciphertext[1000];
+    char decryptedMessage[1000];
+    int mod = 26; 
+    encryptHillCipher(message, key, ciphertext, mod);
+    printf("Encrypted Message: %s\n", ciphertext);
+    decryptHillCipher(ciphertext, key, decryptedMessage, mod);
+    printf("Decrypted Message: %s\n", decryptedMessage);
+    return 0;
+}
